@@ -3,35 +3,42 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package clientudp;
+package chatclienttoclient;
 
-import java.io.IOException;
 import java.net.SocketException;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
- * @author pc15
+ * @author Andrei
  */
 public class ClientUDP {
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws SocketException, IOException {
-        // TODO code application logic here
-        String IP_address;
-        int UDP_port;
-        String request,answer;
-        UDPClientSocket client;
-        
-        IP_address="127.0.0.1";
-        UDP_port=7;
-        request="ciao";
-        
-        client = new UDPClientSocket();
-        answer = client.sendAndRecive(request, IP_address, UDP_port);
-        System.out.println("ho ricevuto in risposta: " + answer);
-        client.close_socket();
+    public static void main(String[] args) throws InterruptedException {
+        try {
+            // TODO code application logic here
+            String ip = JOptionPane.showInputDialog("Inserire IP destinatario ((127.0.0.1) Blank for loopback)");
+            if(ip.equals("")) { ip = "127.0.0.1"; }
+            UDPClientSocket udpc = new UDPClientSocket(2000,ip);
+            new Listen(udpc);
+            Scanner sc = new Scanner(System.in);
+            String mess = "";
+            
+            while(!mess.equals("quit")) {
+                System.out.println("Inserire Messaggio:");
+                mess = sc.nextLine();
+                new Send(udpc,mess);
+                Thread.sleep(10);
+            }
+        } catch (SocketException ex) {
+            Logger.getLogger(ClientUDP.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
 }
